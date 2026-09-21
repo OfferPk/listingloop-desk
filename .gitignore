@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+build
+coverage
+.env
+.env*.local
+data/*.db
+data/*.db-*
+!data/.gitkeep
+uploads
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+.DS_Store
