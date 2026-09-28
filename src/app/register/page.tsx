@@ -50,8 +50,8 @@ export default function RegisterPage() {
             <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div>
-            <label className="label">Password (min 6)</label>
-            <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+            <label className="label">Password (min 10)</label>
+            <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={10} />
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button type="submit" disabled={busy} className="btn-primary w-full">{busy ? "Creating…" : "Create workspace"}</button>

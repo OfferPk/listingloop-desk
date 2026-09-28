@@ -184,9 +184,9 @@ db.prepare(
 const insertUser = db.prepare(
   `INSERT INTO users (id, email, password_hash, name, created_at) VALUES (?, ?, ?, ?, ?)`
 );
-insertUser.run(ownerId, "owner@listingloop.local", hash("owner123"), "Ayesha Owner", iso(daysAgo(40)));
-insertUser.run(managerId, "manager@listingloop.local", hash("manager123"), "Bilal Manager", iso(daysAgo(30)));
-insertUser.run(agentId, "agent@listingloop.local", hash("agent123"), "Sara Agent", iso(daysAgo(20)));
+insertUser.run(ownerId, "owner@listingloop.local", hash("owner12345"), "Ayesha Owner", iso(daysAgo(40)));
+insertUser.run(managerId, "manager@listingloop.local", hash("manager12345"), "Bilal Manager", iso(daysAgo(30)));
+insertUser.run(agentId, "agent@listingloop.local", hash("agent12345"), "Sara Agent", iso(daysAgo(20)));
 
 const insertMem = db.prepare(
   `INSERT INTO memberships (id, workspace_id, user_id, role, status) VALUES (?, ?, ?, ?, 'active')`
@@ -288,8 +288,8 @@ insertVisit.run(
 console.log("Seeded ListingLoop Desk");
 console.log("  DB:", dbPath);
 console.log("  Workspace: Karachi Homes Demo");
-console.log("  owner@listingloop.local / owner123");
-console.log("  manager@listingloop.local / manager123");
-console.log("  agent@listingloop.local / agent123");
+console.log("  owner@listingloop.local / owner12345");
+console.log("  manager@listingloop.local / manager12345");
+console.log("  agent@listingloop.local / agent12345");
 console.log(`  Listings: ${listings.length}, Inquiries: ${inqs.length}`);
 db.close();

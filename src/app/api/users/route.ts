@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { AuthError, hashPassword, requireManager, requireUser } from "@/lib/auth";
+import { AuthError, hashPassword, requireManager } from "@/lib/auth";
 import type { Role } from "@/lib/types";
 
 export async function GET() {
   try {
-    const user = await requireUser();
+    const user = await requireManager();
     const rows = getDb()
       .prepare(
         `SELECT m.id as membership_id, m.role, m.status, u.id, u.email, u.name, u.created_at
@@ -33,8 +33,8 @@ export async function POST(req: NextRequest) {
     if (!email || !password || !name) {
       return NextResponse.json({ error: "Name, email, password required" }, { status: 400 });
     }
-    if (password.length < 6) {
-      return NextResponse.json({ error: "Password min 6 chars" }, { status: 400 });
+    if (password.length < 10) {
+      return NextResponse.json({ error: "Password must be at least 10 characters" }, { status: 400 });
     }
     if (!["owner", "manager", "agent"].includes(role)) {
       return NextResponse.json({ error: "Invalid role" }, { status: 400 });

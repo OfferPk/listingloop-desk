@@ -4,6 +4,7 @@ import { getInquiry, listNotes, listEvents, listVisitsForInquiry } from "@/lib/i
 import { formatBudgetRange, formatDateTime } from "@/lib/format";
 import { SOURCE_LABELS, STAGE_LABELS } from "@/lib/types";
 import { InquiryActions } from "@/components/InquiryActions";
+import { VisitOutcomeControls } from "@/components/VisitOutcomeControls";
 
 export default async function InquiryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
@@ -60,12 +61,7 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
 
           <section className="card">
             <h2 className="mb-2 font-medium">Visits</h2>
-            <ul className="space-y-1 text-sm">
-              {visits.map((v) => (
-                <li key={v.id}>{formatDateTime(v.scheduled_at)} · {v.status}{v.outcome_note ? ` — ${v.outcome_note}` : ""}</li>
-              ))}
-              {visits.length === 0 && <p className="text-slate-400">No visits</p>}
-            </ul>
+            <VisitOutcomeControls inquiryId={inquiry.id} visits={visits} />
           </section>
 
           <section className="card">

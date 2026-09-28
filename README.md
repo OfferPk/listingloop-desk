@@ -45,9 +45,15 @@ npm run build
 
 | Role    | Email                     | Password    |
 |---------|---------------------------|-------------|
-| Owner   | owner@listingloop.local   | owner123    |
-| Manager | manager@listingloop.local | manager123  |
-| Agent   | agent@listingloop.local   | agent123    |
+| Owner   | owner@listingloop.local   | owner12345  |
+| Manager | manager@listingloop.local | manager12345 |
+| Agent   | agent@listingloop.local   | agent12345  |
+
+## Auth notes
+
+- Password minimum: **10** characters (register + invite).
+- Soft in-memory rate limit on **login** and **register**: ≤10 failures per IP/email in 15 minutes → HTTP **429** with `Retry-After`. Single-node only (not shared across replicas).
+- Team roster + CSV import are **manager/owner only** (API 403 + page redirect for agents).
 
 ## Docs
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AuthError, requireUser } from "@/lib/auth";
+import { AuthError, requireManager } from "@/lib/auth";
 import { createImportJob, listImportJobs } from "@/lib/imports";
 
 function jsonError(e: unknown) {
@@ -12,7 +12,7 @@ function jsonError(e: unknown) {
 
 export async function GET() {
   try {
-    const user = await requireUser();
+    const user = await requireManager();
     return NextResponse.json({ jobs: listImportJobs(user) });
   } catch (e) {
     return jsonError(e);
@@ -21,7 +21,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireUser();
+    const user = await requireManager();
     const form = await req.formData();
     const file = form.get("file");
     if (!file || typeof file === "string") {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AuthError, requireUser } from "@/lib/auth";
+import { AuthError, requireManager } from "@/lib/auth";
 import { previewImport } from "@/lib/imports";
 
 export async function POST(
@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: Promise<{ jobId: string }> }
 ) {
   try {
-    const user = await requireUser();
+    const user = await requireManager();
     const { jobId } = await params;
     return NextResponse.json({ preview: previewImport(user, jobId) });
   } catch (e) {

@@ -40,9 +40,9 @@ Aap inquiries capture karte hain, listing se match karte hain, follow-up / visit
 
 | Role    | Email                     | Password   |
 |---------|---------------------------|------------|
-| Owner   | owner@listingloop.local   | owner123   |
-| Manager | manager@listingloop.local | manager123 |
-| Agent   | agent@listingloop.local   | agent123   |
+| Owner   | owner@listingloop.local   | owner12345 |
+| Manager | manager@listingloop.local | manager12345 |
+| Agent   | agent@listingloop.local   | agent12345 |
 
 Pehli dafa register bhi ho sakta hai (sirf jab koi user na ho) — woh owner ban jata hai.
 
@@ -99,7 +99,9 @@ Pehli dafa register bhi ho sakta hai (sirf jab koi user na ho) — woh owner ban
 
 ## 8. Security / privacy tips
 
+- Password min **10** chars; login/register pe soft rate limit (429).
 - Production mein strong passwords + `COOKIE_SECURE=true` (HTTPS).
+- Team + CSV Import sirf owner/manager — agents ko nav hide + server redirect.
 - CSV / phones sensitive hain — public share mat karo.
 - WhatsApp handoff intentional hai; bulk spam / unofficial WA libs mat jodo.
 - Workspace isolation server-side hai — URL mein ID change karke dusra workspace nahi milna chahiye.
@@ -107,5 +109,5 @@ Pehli dafa register bhi ho sakta hai (sirf jab koi user na ho) — woh owner ban
 
 ## 9. Agla update
 
-- Design-partner feedback ke baad filters polish, visit outcomes UI, richer activity.
+- Design-partner feedback ke baad filters polish, richer activity.
 - Meta/portal live sync MVP ke bahar hai.

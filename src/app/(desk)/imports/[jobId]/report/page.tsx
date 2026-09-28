@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { getImportJob, getImportReportRows } from "@/lib/imports";
 import { notFound } from "next/navigation";
 
 export default async function ImportReportPage({ params }: { params: Promise<{ jobId: string }> }) {
-  const user = await requireUser();
+  const user = await requireManager();
   const { jobId } = await params;
   const job = getImportJob(user, jobId);
   if (!job) notFound();

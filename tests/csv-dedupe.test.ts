@@ -9,6 +9,13 @@ describe("CSV formula-safe escape", () => {
     expect(csvEscape("-1")).toBe("'-1");
     expect(csvEscape("@ref")).toBe("'@ref");
   });
+
+  it("neutralizes tab/CR/space-prefixed formula vectors", () => {
+    expect(csvEscape("\t=1+1")).toMatch(/^'/);
+    expect(csvEscape("\r=cmd")).toMatch(/^['"]/);
+    expect(csvEscape(" =HYPERLINK")).toMatch(/^'/);
+    expect(csvEscape("  @sum")).toMatch(/^'/);
+  });
   it("quotes commas", () => {
     expect(csvEscape("a,b")).toBe('"a,b"');
   });

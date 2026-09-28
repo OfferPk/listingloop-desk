@@ -1,10 +1,9 @@
 import { redirect } from "next/navigation";
 import { AuthError, requireManager } from "@/lib/auth";
-import { TeamClient } from "@/components/TeamClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function TeamPage() {
+export default async function ImportsLayout({ children }: { children: React.ReactNode }) {
   try {
     await requireManager();
   } catch (e) {
@@ -14,5 +13,5 @@ export default async function TeamPage() {
     }
     throw e;
   }
-  return <TeamClient />;
+  return <>{children}</>;
 }

@@ -31,7 +31,7 @@ describe("seed smoke", () => {
     const owner = db
       .prepare(`SELECT password_hash FROM users WHERE email = ?`)
       .get("owner@listingloop.local") as { password_hash: string };
-    expect(bcrypt.compareSync("owner123", owner.password_hash)).toBe(true);
+    expect(bcrypt.compareSync("owner12345", owner.password_hash)).toBe(true);
     const manager = db
       .prepare(`SELECT email FROM users WHERE email = ?`)
       .get("manager@listingloop.local");

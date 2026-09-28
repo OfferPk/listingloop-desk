@@ -133,12 +133,17 @@ export async function requireUser(): Promise<SessionUser> {
   return user;
 }
 
-export async function requireManager(): Promise<SessionUser> {
-  const user = await requireUser();
+/** Sync gate used by requireManager and unit tests. */
+export function assertManagerRole(user: SessionUser): SessionUser {
   if (user.role !== "owner" && user.role !== "manager") {
     throw new AuthError("Forbidden — owners/managers only", 403);
   }
   return user;
+}
+
+export async function requireManager(): Promise<SessionUser> {
+  const user = await requireUser();
+  return assertManagerRole(user);
 }
 
 export async function requireOwner(): Promise<SessionUser> {

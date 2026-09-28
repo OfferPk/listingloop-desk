@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { listImportJobs } from "@/lib/imports";
 import { formatDateTime } from "@/lib/format";
 
 export default async function ImportsPage() {
-  const user = await requireUser();
+  const user = await requireManager();
   const jobs = listImportJobs(user);
   return (
     <div className="space-y-4">

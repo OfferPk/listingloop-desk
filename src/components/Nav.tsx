@@ -3,13 +3,17 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
-const LINKS = [
+const BASE_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/board", label: "Board" },
   { href: "/today", label: "Today" },
   { href: "/listings", label: "Listings" },
   { href: "/inquiries/new", label: "New inquiry" },
+];
+
+const MANAGER_LINKS = [
   { href: "/imports", label: "Import" },
+  { href: "/team", label: "Team" },
 ];
 
 export function Nav({
@@ -23,8 +27,8 @@ export function Nav({
   const [busy, setBusy] = useState(false);
   const links =
     user.role === "owner" || user.role === "manager"
-      ? [...LINKS, { href: "/team", label: "Team" }]
-      : LINKS;
+      ? [...BASE_LINKS, ...MANAGER_LINKS]
+      : BASE_LINKS;
 
   async function logout() {
     setBusy(true);
