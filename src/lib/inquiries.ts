@@ -5,6 +5,7 @@ import {
   isManagerOrOwner,
 } from "./auth";
 import { preparePhoneForStorage, PHONE_REQUIRED_HINT } from "./phone";
+import { createListing } from "./listings";
 import { endOfDayISO, startOfDayISO } from "./format";
 import type {
   Inquiry,
@@ -676,4 +677,48 @@ export function findByExternalRef(
     )
     .get(workspaceId, externalRef) as { id: string } | undefined;
   return row ?? null;
+}
+
+/** Manager/owner empty-state: one sample listing + inquiry with follow-up today. */
+export function createSampleInquiry(user: SessionUser): {
+  listing: { id: string; listing_ref: string; title: string };
+  inquiry: Inquiry;
+} {
+  if (!isManagerOrOwner(user.role)) {
+    throw new AuthError("Forbidden — owners/managers only", 403);
+  }
+  const suffix = crypto.randomUUID().slice(0, 8).toUpperCase();
+  const listing = createListing(user, {
+    listing_ref: `SAMPLE-${suffix}`,
+    title: "Sample Listing — DHA Phase 5 (Demo)",
+    city: "Lahore",
+    locality: "DHA Phase 5",
+    property_type: "house",
+    beds: 5,
+    status: "active",
+  });
+  const followUp = new Date();
+  followUp.setHours(11, 0, 0, 0);
+  const phoneTail = String(Math.floor(Math.random() * 1e7)).padStart(7, "0");
+  const inquiry = createInquiry(user, {
+    name: "Sample Inquiry (Demo)",
+    phone: `92300${phoneTail}`,
+    source: "other",
+    source_detail: "sample_seed",
+    owner_id: user.id,
+    listing_id: listing.id,
+    preferred_locality: "DHA Phase 5",
+    stage: "new",
+    next_follow_up_at: followUp.toISOString(),
+    message:
+      "Sample inquiry — pehli WhatsApp baat ke baad yahan note likho. / Write your first chat summary here.",
+  });
+  return {
+    listing: {
+      id: listing.id,
+      listing_ref: listing.listing_ref,
+      title: listing.title,
+    },
+    inquiry,
+  };
 }

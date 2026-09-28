@@ -1,13 +1,23 @@
 import Link from "next/link";
-import { requireUser } from "@/lib/auth";
+import { requireUser, isManagerOrOwner } from "@/lib/auth";
 import { getDashboardStats, getTodayQueue } from "@/lib/inquiries";
+import { listListings } from "@/lib/listings";
+import { getImportCadenceState, IMPORT_CADENCE_DAYS } from "@/lib/imports";
 import { formatDateTime } from "@/lib/format";
 import { STAGE_LABELS } from "@/lib/types";
+import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { ImportCadenceBanner } from "@/components/ImportCadenceBanner";
 
 export default async function DashboardPage() {
   const user = await requireUser();
   const stats = getDashboardStats(user);
   const queue = getTodayQueue(user);
+  const listings = listListings(user, { status: "all" });
+  const showChecklist = stats.open_total === 0 || listings.length === 0;
+  const isManager = isManagerOrOwner(user.role);
+  const cadence = isManager
+    ? getImportCadenceState(user)
+    : { show: false, lastSuccessfulAt: null };
 
   return (
     <div className="space-y-4">
@@ -18,6 +28,21 @@ export default async function DashboardPage() {
         </div>
         <Link href="/inquiries/new" className="btn-primary">+ Add inquiry</Link>
       </div>
+
+      <OnboardingChecklist
+        show={showChecklist}
+        userId={user.id}
+        isManager={isManager}
+        allowSample={isManager}
+      />
+
+      {isManager && (
+        <ImportCadenceBanner
+          show={cadence.show}
+          lastSuccessfulAt={cadence.lastSuccessfulAt}
+          remindDays={IMPORT_CADENCE_DAYS}
+        />
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <div className="card"><p className="text-xs text-slate-500">Overdue</p><p className="text-2xl font-semibold text-red-600">{stats.overdue}</p></div>

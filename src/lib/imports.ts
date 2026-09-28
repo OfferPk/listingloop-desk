@@ -535,3 +535,40 @@ export function getImportReportRows(user: SessionUser, jobId: string): {
       message: string | null;
     }[];
 }
+
+/** Soft re-upload nudge: constant days since last successful commit (no settings UI). */
+export const IMPORT_CADENCE_DAYS = 3;
+
+export type ImportCadenceState = {
+  show: boolean;
+  lastSuccessfulAt: string | null;
+};
+
+/**
+ * Manager/owner only at call site.
+ * Show when: (a) ≥1 successful (`done`) commit and newest `created_at` older than N days,
+ * or (b) jobs exist but none succeeded (e.g. only failed). Empty jobs → no banner (empty CTA).
+ */
+export function getImportCadenceState(user: SessionUser): ImportCadenceState {
+  const jobs = getDb()
+    .prepare(
+      `SELECT status, created_at FROM import_jobs WHERE workspace_id = ?`
+    )
+    .all(user.workspace_id) as { status: string; created_at: string }[];
+  if (jobs.length === 0) {
+    return { show: false, lastSuccessfulAt: null };
+  }
+  const successful = jobs
+    .filter((j) => j.status === "done")
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  if (successful.length === 0) {
+    return { show: true, lastSuccessfulAt: null };
+  }
+  const newest = successful[0];
+  const ageMs = Date.now() - new Date(newest.created_at).getTime();
+  const threshold = IMPORT_CADENCE_DAYS * 24 * 60 * 60 * 1000;
+  return {
+    show: ageMs >= threshold,
+    lastSuccessfulAt: newest.created_at,
+  };
+}

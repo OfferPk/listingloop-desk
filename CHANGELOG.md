@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- **First-run onboarding checklist** on Dashboard, Board, and Imports (managers): dismissible 3-step guide (Add listing → New inquiry / Import CSV → Invite agent) when open inquiries or listings are zero. Dismiss persisted in `localStorage` keyed by user id. EN primary + Roman Urdu subtitle.
+- **`POST /api/inquiries/sample`** (manager/owner): seeds one sample listing + inquiry with `next_follow_up` today; “Seed sample inquiry” CTA on empty checklist.
+- **Board locality filter:** text input `name="locality"` (city / locality) wired to existing `InquiryFilters.locality`; Clear link resets all query params.
+- **Imports empty CTA:** primary Upload CSV + hint that portal/Meta CSV lands here.
+- **Import cadence banner** (manager/owner only, constant N=3 days): soft “Re-upload portal CSV → Import” on Dashboard + Imports when newest successful commit is older than 3 days, or only failed jobs exist. Agents never see it.
+
 ## [0.1.1] — 2026-09-28
 
 ### Security

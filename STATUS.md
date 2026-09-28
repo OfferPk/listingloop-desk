@@ -1,8 +1,24 @@
 # ListingLoop Desk — STATUS
 
 **Version:** 0.1.1  
-**Updated:** 2026-09-28T16:30:00+05:00 (Asia/Karachi)  
-**Status:** READY_TO_PUBLISH
+**Updated:** 2026-09-28T17:15:00+05:00 (Asia/Karachi)  
+**Status:** READY_FOR_QA
+
+## Handoff — Unreleased pack (post v0.1.1)
+
+Stacked on release commit `98a00bb` (not rewritten). No version bump — stay **0.1.1 Unreleased** until Master cuts patch (optional 0.1.2 if sample API warrants).
+
+| Item | Notes |
+|------|--------|
+| Onboarding checklist | Dashboard + Board + Imports (managers); localStorage dismiss by user id; optional sample seed CTA |
+| Sample API | `POST /api/inquiries/sample` — requireManager; listing + inquiry, follow-up today |
+| Board locality | `name="locality"` + Clear → `/board` |
+| Imports empty CTA | Upload CSV + portal/Meta hint |
+| Import cadence | N=3 days constant; manager/owner Dashboard + Imports; agents never |
+| Demo passwords | **Unchanged** — `owner12345` / `manager12345` / `agent12345` |
+
+### Verify this pack
+- `npm test` + `npm run build` (see Verification below after run)
 
 ## Dual-clear (v0.1.1)
 
@@ -10,7 +26,7 @@
 |------|--------|
 | QA R2 | **PASS** (`QA-REPORT-R2.md`) |
 | Security R2 | **PASS_WITH_NOTES** (`SECURITY-REPORT-R2.md`) |
-| `npm test` | **31/31** (8 files) |
+| `npm test` | **31/31** (8 files) at release |
 | `npm run build` | **success** (Next.js 15.5.25) |
 | Git push / tag | **blocked** — `GH_TOKEN` invalid; local release commit only |
 
@@ -19,7 +35,7 @@
 | Command | Result |
 |--------|--------|
 | `npm run seed` | OK — demo workspace + 6 listings + 12 inquiries |
-| `npm test` | **31 passed** (8 files) |
+| `npm test` | **40 passed** (10 files) |
 | `npm run build` | **success** (Next.js 15.5.25) |
 
 ## Demo logins
@@ -38,6 +54,12 @@
 - [x] `csvEscape` leading whitespace/control + formula chars
 - [x] Visit outcome UI + PATCH route (agent own / manager any)
 - [x] Dual-clear QA R2 + Security R2; CHANGELOG cut; READY_TO_PUBLISH
+
+## Unreleased (this pack)
+
+- [x] First-run empty-state checklist (+ sample seed API)
+- [x] Board locality filter + Clear
+- [x] Imports empty CTA + last-import cadence banner (N=3)
 
 ## MVP delivered
 
@@ -59,9 +81,11 @@
 - Team invite is a simple form (seed covers demo users)
 - No Meta/WABA, scraping, Docker/Postgres, AI
 - Rate limit is in-memory (single node only)
+- Import cadence days are constant (no settings UI)
 
 ## Key paths
 
 - App: `/workspace/factory/projects/listingloop-desk`
 - DB: `data/listingloop.db`
 - Guide: `GUIDE-roman-urdu.md`
+- Improve brief: `/workspace/factory/inbox/IMPROVE-listingloop-desk-20260928-1707.md`
