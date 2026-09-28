@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { STAGE_LABELS, STAGES, NOTE_PRESETS, type Stage, type WaTemplateKey } from "@/lib/types";
+import { LostReasonPicker } from "@/components/LostReasonPicker";
 
 type Template = { key: WaTemplateKey; label: string; body: string };
 
@@ -21,6 +22,7 @@ export function InquiryActions({
   const [templates, setTemplates] = useState<Template[]>([]);
   const [waText, setWaText] = useState("");
   const [selectedTpl, setSelectedTpl] = useState<WaTemplateKey | "">("");
+  const [pendingLost, setPendingLost] = useState(false);
 
   useEffect(() => {
     fetch(`/api/inquiries/${inquiryId}/wa`)
@@ -35,21 +37,20 @@ export function InquiryActions({
       .catch(() => {});
   }, [inquiryId]);
 
-  async function move(next: Stage) {
+  async function doMove(
+    next: Stage,
+    opts: { visit_scheduled_at?: string; lost_reason?: string | null } = {}
+  ) {
     setBusy(true);
     setError("");
-    let visit_scheduled_at: string | undefined;
-    let lost_reason: string | undefined;
-    if (next === "visit_scheduled") {
-      const raw = prompt("Visit date/time", new Date().toISOString().slice(0, 16));
-      if (!raw) { setBusy(false); return; }
-      visit_scheduled_at = new Date(raw).toISOString();
-    }
-    if (next === "lost") lost_reason = prompt("Lost reason (optional)") || undefined;
     const res = await fetch(`/api/inquiries/${inquiryId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ move_stage: next, visit_scheduled_at, lost_reason }),
+      body: JSON.stringify({
+        move_stage: next,
+        visit_scheduled_at: opts.visit_scheduled_at,
+        lost_reason: opts.lost_reason,
+      }),
     });
     setBusy(false);
     if (!res.ok) {
@@ -58,6 +59,20 @@ export function InquiryActions({
       return;
     }
     router.refresh();
+  }
+
+  async function move(next: Stage) {
+    if (next === "visit_scheduled") {
+      const raw = prompt("Visit date/time", new Date().toISOString().slice(0, 16));
+      if (!raw) return;
+      await doMove(next, { visit_scheduled_at: new Date(raw).toISOString() });
+      return;
+    }
+    if (next === "lost") {
+      setPendingLost(true);
+      return;
+    }
+    await doMove(next);
   }
 
   async function saveNote(preset?: string) {
@@ -88,7 +103,10 @@ export function InquiryActions({
     });
     const d = await res.json();
     setBusy(false);
-    if (!res.ok) { setError(d.error || "WA failed"); return; }
+    if (!res.ok) {
+      setError(d.error || "WA failed");
+      return;
+    }
     window.open(d.url, "_blank", "noopener,noreferrer");
     router.refresh();
   }
@@ -103,12 +121,27 @@ export function InquiryActions({
     <div className="space-y-4">
       {error && <p className="text-sm text-red-600">{error}</p>}
 
+      <LostReasonPicker
+        open={pendingLost}
+        onCancel={() => setPendingLost(false)}
+        onConfirm={async (reason) => {
+          setPendingLost(false);
+          await doMove("lost", { lost_reason: reason });
+        }}
+      />
+
       <section className="card space-y-2">
         <h2 className="font-medium">Move stage</h2>
         <p className="text-xs text-slate-500">Current: {STAGE_LABELS[stage]}</p>
         <div className="flex flex-wrap gap-2">
           {STAGES.filter((s) => s !== stage).map((s) => (
-            <button key={s} type="button" disabled={busy} onClick={() => move(s)} className="btn-secondary text-xs">
+            <button
+              key={s}
+              type="button"
+              disabled={busy}
+              onClick={() => move(s)}
+              className="btn-secondary text-xs"
+            >
               → {STAGE_LABELS[s]}
             </button>
           ))}
@@ -118,7 +151,8 @@ export function InquiryActions({
       <section className="card space-y-2">
         <h2 className="font-medium">WhatsApp handoff</h2>
         <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-2 py-1.5">
-          Opens WhatsApp with a draft. You must review and press Send yourself — ListingLoop never sends messages.
+          Opens WhatsApp with a draft. You must review and press Send yourself — ListingLoop never
+          sends messages.
         </p>
         <div className="flex flex-wrap gap-1">
           {templates.map((t) => (
@@ -126,13 +160,22 @@ export function InquiryActions({
               key={t.key}
               type="button"
               onClick={() => pickTpl(t.key)}
-              className={`rounded-lg px-2 py-1 text-xs ${selectedTpl === t.key ? "bg-indigo-100 text-indigo-800" : "bg-slate-100 text-slate-600"}`}
+              className={`rounded-lg px-2 py-1 text-xs ${
+                selectedTpl === t.key
+                  ? "bg-indigo-100 text-indigo-800"
+                  : "bg-slate-100 text-slate-600"
+              }`}
             >
               {t.label}
             </button>
           ))}
         </div>
-        <textarea className="input" rows={4} value={waText} onChange={(e) => setWaText(e.target.value)} />
+        <textarea
+          className="input"
+          rows={4}
+          value={waText}
+          onChange={(e) => setWaText(e.target.value)}
+        />
         <button type="button" disabled={busy || !phone} onClick={openWa} className="btn-wa">
           Open WhatsApp
         </button>
@@ -142,13 +185,31 @@ export function InquiryActions({
         <h2 className="font-medium">Add note</h2>
         <div className="flex flex-wrap gap-1">
           {NOTE_PRESETS.map((p) => (
-            <button key={p.key} type="button" disabled={busy} onClick={() => saveNote(p.label)} className="rounded bg-slate-100 px-2 py-1 text-xs hover:bg-indigo-50">
+            <button
+              key={p.key}
+              type="button"
+              disabled={busy}
+              onClick={() => saveNote(p.label)}
+              className="rounded bg-slate-100 px-2 py-1 text-xs hover:bg-indigo-50"
+            >
               {p.label}
             </button>
           ))}
         </div>
-        <textarea className="input" rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note…" maxLength={5000} />
-        <button type="button" disabled={busy || !note.trim()} onClick={() => saveNote()} className="btn-primary">
+        <textarea
+          className="input"
+          rows={3}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Note…"
+          maxLength={5000}
+        />
+        <button
+          type="button"
+          disabled={busy || !note.trim()}
+          onClick={() => saveNote()}
+          className="btn-primary"
+        >
           Save note
         </button>
       </section>

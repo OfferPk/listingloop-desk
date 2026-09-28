@@ -1,11 +1,35 @@
 # ListingLoop Desk — STATUS
 
 **Version:** 0.1.2  
-**Updated:** 2026-09-28T17:43:00+05:00 (Asia/Karachi)  
-**Status:** SHIPPED  
-**Release tag:** `v0.1.2` on `main` (see `git rev-parse v0.1.2^{}`)
+**Updated:** 2026-09-28T17:52:00+05:00 (Asia/Karachi)  
+**Status:** READY_FOR_QA  
+**Prior release:** `v0.1.2` @ `2a00a69` (SHIPPED; QA PASS / Security PASS_WITH_NOTES)
 
-## Dual-clear (v0.1.2 improve pack)
+## Current handoff (Unreleased on HEAD)
+
+| Item | Notes |
+|------|--------|
+| Stack base | `2a00a69` — release ListingLoop Desk v0.1.2 (**do not amend**) |
+| Pack | Board hide won/lost + `?closed=1`; lost-reason preset chips; export stage + `created_at` date window |
+| Version | Stays **0.1.2** — CHANGELOG **[Unreleased]** only (no 0.1.3 bump) |
+| Demo passwords | **Unchanged** — `owner12345` / `manager12345` / `agent12345` |
+| Out of scope | DnD Kanban, soft-archive, Meta/WABA, billing, Docker/Postgres, dedicated `/inquiries` list |
+| GitHub | **Do not push** — local Unreleased commit only |
+
+## Verification (this pack)
+
+| Command | Result |
+|--------|--------|
+| `npm test` | **54/54** (13 files) |
+| `npm run build` | **success** (Next.js 15.5.25) |
+
+## Acceptance (improve 1745)
+
+- [x] Default board hides won/lost; `?closed=1` / Show closed reveals; `stage=won|lost` still works; checklist on empty
+- [x] Lost chips (Budget / Location/mismatch / Timing / Went silent / Other≤120 / Skip→null) on board + detail
+- [x] Export `stage` + `from`/`to` on `created_at`; UI presets; managers only; formula-safe CSV
+
+## Dual-clear (v0.1.2 improve pack — prior)
 
 | Gate | Result |
 |------|--------|
@@ -14,25 +38,7 @@
 | `npm test` | **40/40** (10 files) at release |
 | `npm run build` | **success** (Next.js 15.5.25) |
 | Base commit | `4e54975` — onboarding, locality filter, import cadence, sample inquiry API |
-| Prior release | v0.1.1 at `98a00bb` |
-
-## v0.1.2 improve pack (shipped)
-
-| Item | Notes |
-|------|--------|
-| Onboarding checklist | Dashboard + Board + Imports (managers); localStorage dismiss by user id; optional sample seed CTA |
-| Sample API | `POST /api/inquiries/sample` — requireManager; listing + inquiry, follow-up today |
-| Board locality | `name="locality"` + Clear → `/board` |
-| Imports empty CTA | Upload CSV + portal/Meta hint |
-| Import cadence | N=3 days constant; manager/owner Dashboard + Imports; agents never |
-| Demo passwords | **Unchanged** — `owner12345` / `manager12345` / `agent12345` |
-
-## Verification (release cut)
-
-| Command | Result |
-|--------|--------|
-| `npm test` | **40 passed** (10 files) |
-| `npm run build` | **success** (Next.js 15.5.25) |
+| Release commit | `2a00a69` |
 
 ## Demo logins
 
@@ -42,40 +48,6 @@
 | Manager | manager@listingloop.local | manager12345 |
 | Agent | agent@listingloop.local | agent12345 |
 
-## Dual-clear (v0.1.1)
-
-| Gate | Result |
-|------|--------|
-| QA R2 | **PASS** (`QA-REPORT-R2.md`) |
-| Security R2 | **PASS_WITH_NOTES** (`SECURITY-REPORT-R2.md`) |
-| `npm test` | **31/31** (8 files) at release |
-| `npm run build` | **success** (Next.js 15.5.25) |
-
-## v0.1.1 ship-blocker fixes
-
-- [x] Team roster API + page manager-only (agents 403 / redirect)
-- [x] Import pipeline API + pages manager-only; Import nav hidden for agents
-- [x] Password min 10; login/register soft rate limit → 429
-- [x] `csvEscape` leading whitespace/control + formula chars
-- [x] Visit outcome UI + PATCH route (agent own / manager any)
-- [x] Dual-clear QA R2 + Security R2; CHANGELOG cut; READY_TO_PUBLISH
-
-## Shipped features (through 0.1.2)
-
-- [x] First-run empty-state checklist (+ sample seed API)
-- [x] Board locality filter + Clear
-- [x] Imports empty CTA + last-import cadence banner (N=3)
-- [x] Auth + workspace (owner / manager / agent), httpOnly session
-- [x] Listings CRUD (archived excluded from new-inquiry pickers)
-- [x] Inquiries CRUD + phone normalize (`03…` → `92…`) + wa.me
-- [x] Kanban board with stage move buttons + filters
-- [x] Today/overdue queues + visits (+ outcome controls)
-- [x] Notes presets + activity events
-- [x] WhatsApp handoff templates (human send — never claims sent)
-- [x] CSV import (manager-only map → preview → commit)
-- [x] CSV export formula-safe (owner/manager)
-- [x] Seed, vitest, README, GUIDE-roman-urdu.md, docs/PRODUCT.md
-
 ## Intentional MVP gaps
 
 - No drag-and-drop kanban (buttons only)
@@ -84,10 +56,11 @@
 - No Meta/WABA, scraping, Docker/Postgres, AI
 - Rate limit is in-memory (single node only)
 - Import cadence days are constant (no settings UI)
+- Soft-archive / dedicated inquiries list page not in this pack
 
 ## Key paths
 
 - App: `/workspace/factory/projects/listingloop-desk`
 - DB: `data/listingloop.db`
 - Guide: `GUIDE-roman-urdu.md`
-- Improve brief: `/workspace/factory/inbox/IMPROVE-listingloop-desk-20260928-1707.md`
+- Improve brief: `/workspace/factory/inbox/IMPROVE-listingloop-desk-20260928-1745.md`

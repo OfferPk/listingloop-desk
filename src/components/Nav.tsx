@@ -13,6 +13,7 @@ const BASE_LINKS = [
 
 const MANAGER_LINKS = [
   { href: "/imports", label: "Import" },
+  { href: "/export", label: "Export" },
   { href: "/team", label: "Team" },
 ];
 
@@ -65,9 +66,9 @@ export function Nav({
             {user.name} · {user.role}
           </span>
           {(user.role === "owner" || user.role === "manager") && (
-            <a href="/api/export/inquiries.csv" className="btn-secondary hidden text-xs sm:inline-flex">
+            <Link href="/export" className="btn-secondary hidden text-xs sm:inline-flex">
               Export CSV
-            </a>
+            </Link>
           )}
           <button type="button" onClick={logout} disabled={busy} className="btn-secondary text-xs">
             Log out

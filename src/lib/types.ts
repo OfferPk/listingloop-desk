@@ -97,14 +97,26 @@ export const WA_TEMPLATE_KEYS: WaTemplateKey[] = [
   "re_engage",
 ];
 
+/** Preset chips when moving an inquiry to Lost (stored as label / free text). */
+export const LOST_REASON_PRESETS = [
+  { key: "budget", label: "Budget" },
+  { key: "location", label: "Location/mismatch" },
+  { key: "timing", label: "Timing" },
+  { key: "went_silent", label: "Went silent" },
+  { key: "other", label: "Other" },
+] as const;
+
+/** @deprecated Prefer LOST_REASON_PRESETS — keys kept for older references. */
 export const LOST_REASONS = [
   "budget",
   "location",
   "timing",
-  "chose_other",
-  "no_response",
+  "went_silent",
   "other",
 ] as const;
+
+/** Max length for lost_reason free-text ("Other") and stored values. */
+export const MAX_LOST_REASON_LENGTH = 120;
 
 export interface SessionUser {
   id: string;

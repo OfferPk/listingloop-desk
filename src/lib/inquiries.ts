@@ -17,7 +17,7 @@ import type {
   Stage,
   VisitStatus,
 } from "./types";
-import { MAX_NOTE_LENGTH, OPEN_STAGES, SOURCES, STAGES } from "./types";
+import { MAX_LOST_REASON_LENGTH, MAX_NOTE_LENGTH, OPEN_STAGES, SOURCES, STAGES } from "./types";
 
 const SELECT = `
   SELECT i.*,
@@ -48,13 +48,29 @@ export function getInquiry(user: SessionUser, id: string): Inquiry {
   return loadInquiry(user, id);
 }
 
+
+function clampLostReason(raw: string | null | undefined): string | null {
+  if (raw == null) return null;
+  const t = String(raw).trim();
+  if (!t) return null;
+  return t.slice(0, MAX_LOST_REASON_LENGTH);
+}
+
 export type InquiryFilters = {
   listing_id?: string;
   owner_id?: string;
   source?: string;
+  /** Single stage or comma-separated list (e.g. "won" or "new,contacted"). */
   stage?: string;
   locality?: string;
   q?: string;
+  /**
+   * Inclusive date window on created_at (YYYY-MM-DD ISO date prefix).
+   * from → created_at >= fromT00:00:00.000Z (prefix compare via substr).
+   * to   → created_at date <= to (substr 1..10).
+   */
+  from?: string;
+  to?: string;
 };
 
 export function listInquiries(
@@ -80,8 +96,26 @@ export function listInquiries(
     params.push(filters.source);
   }
   if (filters.stage) {
-    sql += " AND i.stage = ?";
-    params.push(filters.stage);
+    const stages = filters.stage
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => STAGES.includes(s as Stage));
+    if (stages.length === 1) {
+      sql += " AND i.stage = ?";
+      params.push(stages[0]);
+    } else if (stages.length > 1) {
+      sql += ` AND i.stage IN (${stages.map(() => "?").join(",")})`;
+      params.push(...stages);
+    }
+  }
+  // Date window on created_at (documented in CHANGELOG / export route).
+  if (filters.from) {
+    sql += " AND substr(i.created_at, 1, 10) >= ?";
+    params.push(filters.from);
+  }
+  if (filters.to) {
+    sql += " AND substr(i.created_at, 1, 10) <= ?";
+    params.push(filters.to);
   }
   if (filters.locality) {
     const like = `%${filters.locality}%`;
@@ -224,7 +258,7 @@ export function createInquiry(user: SessionUser, input: InquiryInput): Inquiry {
       input.message?.trim() || null,
       stage,
       input.next_follow_up_at || null,
-      input.lost_reason?.trim() || null,
+      clampLostReason(input.lost_reason ?? null),
       now,
       now
     );
@@ -331,7 +365,7 @@ export function updateInquiry(
       ? input.next_follow_up_at || null
       : existing.next_follow_up_at,
     input.lost_reason !== undefined
-      ? input.lost_reason?.trim() || null
+      ? clampLostReason(input.lost_reason)
       : existing.lost_reason,
     now,
     id,
@@ -365,13 +399,17 @@ export function moveStage(
   user: SessionUser,
   id: string,
   stage: Stage,
-  opts: { visit_scheduled_at?: string; lost_reason?: string } = {}
+  opts: { visit_scheduled_at?: string; lost_reason?: string | null } = {}
 ): Inquiry {
-  return updateInquiry(user, id, {
+  const patch: Partial<InquiryInput> & { visit_scheduled_at?: string | null } = {
     stage,
     visit_scheduled_at: opts.visit_scheduled_at,
-    lost_reason: opts.lost_reason,
-  });
+  };
+  // Always pass lost_reason when moving to lost (null allowed = skip).
+  if (stage === "lost" || opts.lost_reason !== undefined) {
+    patch.lost_reason = opts.lost_reason ?? null;
+  }
+  return updateInquiry(user, id, patch);
 }
 
 export function addNote(

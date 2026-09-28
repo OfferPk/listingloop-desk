@@ -6,6 +6,10 @@ import { getDb } from "@/lib/db";
 import { KanbanBoard } from "@/components/KanbanBoard";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { SOURCE_LABELS, STAGES, STAGE_LABELS, type InquirySource } from "@/lib/types";
+import {
+  boardVisibleStages,
+  parseBoardShowClosed,
+} from "@/lib/board-filter";
 
 export default async function BoardPage({
   searchParams,
@@ -14,6 +18,8 @@ export default async function BoardPage({
 }) {
   const user = await requireUser();
   const sp = await searchParams;
+  const showClosed = parseBoardShowClosed(sp);
+  const visibleStages = boardVisibleStages(showClosed, sp.stage);
   const inquiries = listInquiries(user, {
     listing_id: sp.listing_id,
     owner_id: sp.owner_id,
@@ -33,12 +39,41 @@ export default async function BoardPage({
     )
     .all(user.workspace_id) as { id: string; name: string }[];
 
+  // Preserve non-closed filters when toggling closed columns.
+  const closedToggleParams = new URLSearchParams();
+  for (const key of ["q", "locality", "listing_id", "owner_id", "source", "stage"] as const) {
+    if (sp[key]) closedToggleParams.set(key, sp[key]!);
+  }
+  const hideClosedHref =
+    closedToggleParams.toString() ? `/board?${closedToggleParams}` : "/board";
+  closedToggleParams.set("closed", "1");
+  const showClosedHref = `/board?${closedToggleParams}`;
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl font-semibold">Inquiry board</h1>
-        <Link href="/inquiries/new" className="btn-primary">+ New</Link>
+        <div className="flex flex-wrap items-center gap-2">
+          {showClosed ? (
+            <Link href={hideClosedHref} className="btn-secondary !text-xs">
+              Hide closed
+            </Link>
+          ) : (
+            <Link href={showClosedHref} className="btn-secondary !text-xs">
+              Show closed
+            </Link>
+          )}
+          <Link href="/inquiries/new" className="btn-primary">
+            + New
+          </Link>
+        </div>
       </div>
+
+      <p className="text-sm text-slate-500">
+        {showClosed
+          ? "Showing all columns including Won + Lost."
+          : "Active only (new · contacted · visit · negotiation). Closed hide hain — Show closed se dekho."}
+      </p>
 
       <OnboardingChecklist
         show={showChecklist}
@@ -47,8 +82,17 @@ export default async function BoardPage({
         allowSample={isManager}
       />
 
-      <form className="card grid gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7" method="get">
-        <input className="input" name="q" defaultValue={sp.q || ""} placeholder="Search name/phone/ref" />
+      <form
+        className="card grid gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7"
+        method="get"
+      >
+        {showClosed && <input type="hidden" name="closed" value="1" />}
+        <input
+          className="input"
+          name="q"
+          defaultValue={sp.q || ""}
+          placeholder="Search name/phone/ref"
+        />
         <input
           className="input"
           name="locality"
@@ -58,35 +102,45 @@ export default async function BoardPage({
         <select className="input" name="listing_id" defaultValue={sp.listing_id || ""}>
           <option value="">All listings</option>
           {listings.map((l) => (
-            <option key={l.id} value={l.id}>{l.listing_ref} — {l.title}</option>
+            <option key={l.id} value={l.id}>
+              {l.listing_ref} — {l.title}
+            </option>
           ))}
         </select>
         <select className="input" name="owner_id" defaultValue={sp.owner_id || ""}>
           <option value="">All owners</option>
           {members.map((m) => (
-            <option key={m.id} value={m.id}>{m.name}</option>
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
           ))}
         </select>
         <select className="input" name="source" defaultValue={sp.source || ""}>
           <option value="">All sources</option>
           {(Object.keys(SOURCE_LABELS) as InquirySource[]).map((s) => (
-            <option key={s} value={s}>{SOURCE_LABELS[s]}</option>
+            <option key={s} value={s}>
+              {SOURCE_LABELS[s]}
+            </option>
           ))}
         </select>
         <select className="input" name="stage" defaultValue={sp.stage || ""}>
           <option value="">All stages</option>
           {STAGES.map((s) => (
-            <option key={s} value={s}>{STAGE_LABELS[s]}</option>
+            <option key={s} value={s}>
+              {STAGE_LABELS[s]}
+            </option>
           ))}
         </select>
         <div className="flex flex-wrap items-center gap-2">
-          <button type="submit" className="btn-secondary">Filter</button>
+          <button type="submit" className="btn-secondary">
+            Filter
+          </button>
           <Link href="/board" className="text-xs text-indigo-700 hover:underline">
             Clear
           </Link>
         </div>
       </form>
-      <KanbanBoard inquiries={inquiries} />
+      <KanbanBoard inquiries={inquiries} visibleStages={visibleStages} />
     </div>
   );
 }

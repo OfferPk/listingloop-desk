@@ -58,6 +58,8 @@ Pehli dafa register bhi ho sakta hai (sirf jab koi user na ho) — woh owner ban
 ### Inquiry Board (Kanban)
 - **Kahan:** `/board`
 - **Kaise:** Filters (listing, owner, source, stage, **locality/city**) + search; Clear se saare filters reset. Card pe stage move buttons.
+- **Closed columns:** Default pe Won/Lost hide — sirf active stages. **Show closed** (`?closed=1`) se won+lost dikhte hain; **Hide closed** wapas active.
+- **Lost reason:** Lost pe prompt nahi — chip presets (Budget / Location / Timing / Went silent / Other) ya Skip.
 - **Result:** Stage save hoti hai; visit_scheduled pe date/time mangta hai.
 
 ### New inquiry
@@ -67,7 +69,7 @@ Pehli dafa register bhi ho sakta hai (sirf jab koi user na ho) — woh owner ban
 
 ### Inquiry detail + WhatsApp
 - **Kahan:** `/inquiries/[id]`
-- **Kaise:** Stage move, note presets, WhatsApp template edit karke “Open WhatsApp”.
+- **Kaise:** Stage move (Lost pe same reason chips), note presets, WhatsApp template edit karke “Open WhatsApp”.
 - **Result:** WhatsApp draft khulta hai — **aap Send dabate hain**. App message nahi bhejti.
 
 ### Listings
@@ -81,9 +83,9 @@ Pehli dafa register bhi ho sakta hai (sirf jab koi user na ho) — woh owner ban
 - **Result:** Created / duplicate / invalid counts. Manager ko 3-din cadence reminder bhi mil sakta hai.
 
 ### CSV Export
-- **Kahan:** Nav “Export CSV” (owner/manager)
-- **Kaise:** Click → `inquiries.csv` download (formula-safe).
-- **Result:** UTF-8 CSV team ke liye.
+- **Kahan:** `/export` — Nav “Export CSV” / “Export” (owner/manager)
+- **Kaise:** Stage preset (All / Open active / Won / Lost) + optional created_at from/to → Download.
+- **Result:** Formula-safe UTF-8 `inquiries.csv`. Agents ko 403 / redirect.
 
 ### Team invite
 - **Kahan:** `/team` (owner/manager)
