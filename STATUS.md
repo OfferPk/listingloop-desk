@@ -1,12 +1,22 @@
 # ListingLoop Desk — STATUS
 
-**Version:** 0.1.1  
-**Updated:** 2026-09-28T17:15:00+05:00 (Asia/Karachi)  
-**Status:** READY_FOR_QA
+**Version:** 0.1.2  
+**Updated:** 2026-09-28T17:43:00+05:00 (Asia/Karachi)  
+**Status:** SHIPPED  
+**Release tag:** `v0.1.2` on `main` (see `git rev-parse v0.1.2^{}`)
 
-## Handoff — Unreleased pack (post v0.1.1)
+## Dual-clear (v0.1.2 improve pack)
 
-Stacked on release commit `98a00bb` (not rewritten). No version bump — stay **0.1.1 Unreleased** until Master cuts patch (optional 0.1.2 if sample API warrants).
+| Gate | Result |
+|------|--------|
+| QA | **PASS** (`QA-REPORT-IMPROVE-20260928.md`) |
+| Security | **PASS_WITH_NOTES** (`SECURITY-REPORT-IMPROVE-1715.md`) |
+| `npm test` | **40/40** (10 files) at release |
+| `npm run build` | **success** (Next.js 15.5.25) |
+| Base commit | `4e54975` — onboarding, locality filter, import cadence, sample inquiry API |
+| Prior release | v0.1.1 at `98a00bb` |
+
+## v0.1.2 improve pack (shipped)
 
 | Item | Notes |
 |------|--------|
@@ -17,24 +27,10 @@ Stacked on release commit `98a00bb` (not rewritten). No version bump — stay **
 | Import cadence | N=3 days constant; manager/owner Dashboard + Imports; agents never |
 | Demo passwords | **Unchanged** — `owner12345` / `manager12345` / `agent12345` |
 
-### Verify this pack
-- `npm test` + `npm run build` (see Verification below after run)
-
-## Dual-clear (v0.1.1)
-
-| Gate | Result |
-|------|--------|
-| QA R2 | **PASS** (`QA-REPORT-R2.md`) |
-| Security R2 | **PASS_WITH_NOTES** (`SECURITY-REPORT-R2.md`) |
-| `npm test` | **31/31** (8 files) at release |
-| `npm run build` | **success** (Next.js 15.5.25) |
-| Git push / tag | **blocked** — `GH_TOKEN` invalid; local release commit only |
-
-## Verification
+## Verification (release cut)
 
 | Command | Result |
 |--------|--------|
-| `npm run seed` | OK — demo workspace + 6 listings + 12 inquiries |
 | `npm test` | **40 passed** (10 files) |
 | `npm run build` | **success** (Next.js 15.5.25) |
 
@@ -46,6 +42,15 @@ Stacked on release commit `98a00bb` (not rewritten). No version bump — stay **
 | Manager | manager@listingloop.local | manager12345 |
 | Agent | agent@listingloop.local | agent12345 |
 
+## Dual-clear (v0.1.1)
+
+| Gate | Result |
+|------|--------|
+| QA R2 | **PASS** (`QA-REPORT-R2.md`) |
+| Security R2 | **PASS_WITH_NOTES** (`SECURITY-REPORT-R2.md`) |
+| `npm test` | **31/31** (8 files) at release |
+| `npm run build` | **success** (Next.js 15.5.25) |
+
 ## v0.1.1 ship-blocker fixes
 
 - [x] Team roster API + page manager-only (agents 403 / redirect)
@@ -55,14 +60,11 @@ Stacked on release commit `98a00bb` (not rewritten). No version bump — stay **
 - [x] Visit outcome UI + PATCH route (agent own / manager any)
 - [x] Dual-clear QA R2 + Security R2; CHANGELOG cut; READY_TO_PUBLISH
 
-## Unreleased (this pack)
+## Shipped features (through 0.1.2)
 
 - [x] First-run empty-state checklist (+ sample seed API)
 - [x] Board locality filter + Clear
 - [x] Imports empty CTA + last-import cadence banner (N=3)
-
-## MVP delivered
-
 - [x] Auth + workspace (owner / manager / agent), httpOnly session
 - [x] Listings CRUD (archived excluded from new-inquiry pickers)
 - [x] Inquiries CRUD + phone normalize (`03…` → `92…`) + wa.me

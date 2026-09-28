@@ -9,7 +9,7 @@ Aap inquiries capture karte hain, listing se match karte hain, follow-up / visit
 
 ## 2. Kahan se download karein?
 
-- Source / ZIP: factory project path `listingloop-desk` (GitHub publish baad mein).
+- Source / ZIP: https://github.com/OfferPk/listingloop-desk (releases pe latest tag).
 - Local clone ke baad isi folder mein `npm install` karein.
 
 ## 3. Pehle kya chahiye? (requirements)
@@ -52,10 +52,12 @@ Pehli dafa register bhi ho sakta hai (sirf jab koi user na ho) — woh owner ban
 - **Kahan:** `/dashboard`
 - **Kaise:** Login ke baad overdue follow-ups, aaj ki visits, new count dikhega.
 - **Result:** Jaldi dekh lo kya urgent hai; “Add inquiry” se naya lead.
+- **Onboarding:** Pehli dafa (khali workspace) pe dismissible 3-step checklist; manager “Seed sample inquiry” bhi use kar sakta hai.
+- **Import cadence (manager):** Agar last successful CSV import 3 din se purana ho to soft reminder banner.
 
 ### Inquiry Board (Kanban)
 - **Kahan:** `/board`
-- **Kaise:** Filters (listing, owner, source, stage) + search. Card pe stage move buttons.
+- **Kaise:** Filters (listing, owner, source, stage, **locality/city**) + search; Clear se saare filters reset. Card pe stage move buttons.
 - **Result:** Stage save hoti hai; visit_scheduled pe date/time mangta hai.
 
 ### New inquiry
@@ -75,8 +77,8 @@ Pehli dafa register bhi ho sakta hai (sirf jab koi user na ho) — woh owner ban
 
 ### CSV Import
 - **Kahan:** `/imports` → upload → map columns → preview → commit
-- **Kaise:** Name + phone map zaroori. Dedupe phone (+ external_ref).
-- **Result:** Created / duplicate / invalid counts.
+- **Kaise:** Name + phone map zaroori. Dedupe phone (+ external_ref). Empty state pe Upload CSV CTA + portal/Meta hint.
+- **Result:** Created / duplicate / invalid counts. Manager ko 3-din cadence reminder bhi mil sakta hai.
 
 ### CSV Export
 - **Kahan:** Nav “Export CSV” (owner/manager)

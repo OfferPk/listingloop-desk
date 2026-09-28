@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.2] — 2026-09-28
+
 ### Added
 - **First-run onboarding checklist** on Dashboard, Board, and Imports (managers): dismissible 3-step guide (Add listing → New inquiry / Import CSV → Invite agent) when open inquiries or listings are zero. Dismiss persisted in `localStorage` keyed by user id. EN primary + Roman Urdu subtitle.
 - **`POST /api/inquiries/sample`** (manager/owner): seeds one sample listing + inquiry with `next_follow_up` today; “Seed sample inquiry” CTA on empty checklist.
