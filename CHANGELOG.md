@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.3] — 2026-09-28
+
 ### Added
 - **Board hide won/lost by default:** default `/board` columns are active only (`new | contacted | visit_scheduled | negotiation`). `?closed=1` or `?show=all` reveals Won + Lost; **Show closed / Hide closed** toggle (EN + Roman Urdu hint). Explicit `stage=won|lost` still reveals that column. OnboardingChecklist unchanged when open/listings zero.
 - **Lost-reason preset chips:** replaces `window.prompt` on board move + inquiry detail. Presets: Budget, Location/mismatch, Timing, Went silent, Other (+ free text, max **120**). Skip → `null` reason. Constants: `LOST_REASON_PRESETS`, `MAX_LOST_REASON_LENGTH` in `types.ts`.
