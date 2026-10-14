@@ -17,6 +17,7 @@ export function KanbanBoard({
   const columns = visibleStages?.length ? visibleStages : [...STAGES];
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [busyStage, setBusyStage] = useState<Stage | null>(null);
   const [error, setError] = useState("");
   const [pendingLostId, setPendingLostId] = useState<string | null>(null);
 
@@ -26,17 +27,27 @@ export function KanbanBoard({
     opts: { visit_scheduled_at?: string; lost_reason?: string | null } = {}
   ) {
     setBusyId(id);
+    setBusyStage(stage);
     setError("");
-    const res = await fetch(`/api/inquiries/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        move_stage: stage,
-        visit_scheduled_at: opts.visit_scheduled_at,
-        lost_reason: opts.lost_reason,
-      }),
-    });
+    let res: Response;
+    try {
+      res = await fetch(`/api/inquiries/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          move_stage: stage,
+          visit_scheduled_at: opts.visit_scheduled_at,
+          lost_reason: opts.lost_reason,
+        }),
+      });
+    } catch {
+      setBusyId(null);
+      setBusyStage(null);
+      setError("Connection interrupted. Please try again.");
+      return;
+    }
     setBusyId(null);
+    setBusyStage(null);
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       setError(data.error || "Move failed");
@@ -69,8 +80,13 @@ export function KanbanBoard({
   ) as Record<Stage, Inquiry[]>;
 
   return (
-    <div className="space-y-2">
-      {error && <p className="text-sm text-red-600">{error}</p>}
+    <div className="space-y-3">
+      {error && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</p>}
+      {busyId && busyStage && (
+        <p role="status" aria-live="polite" className="sr-only">
+          Moving inquiry to {STAGE_LABELS[busyStage]}.
+        </p>
+      )}
       <LostReasonPicker
         open={pendingLostId != null}
         onCancel={() => setPendingLostId(null)}
@@ -81,24 +97,37 @@ export function KanbanBoard({
           await doMove(id, "lost", { lost_reason: reason });
         }}
       />
-      <div className="flex gap-3 overflow-x-auto pb-2">
+      {columns.length > 1 && (
+        <p className="text-xs text-slate-500 sm:hidden">
+          Swipe horizontally to see every stage <span aria-hidden="true">→</span>
+        </p>
+      )}
+      <div
+        className="board-columns flex gap-4 overflow-x-auto pb-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2"
+        role="region"
+        aria-label="Inquiry stages"
+        tabIndex={0}
+      >
         {columns.map((stage) => (
-          <div key={stage} className="min-w-[220px] flex-1 rounded-xl bg-slate-100 p-2">
-            <div className="mb-2 flex items-center justify-between px-1">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-600">
+          <div key={stage} className="board-lane w-[min(19rem,90vw)] shrink-0">
+            <div className="lane-header mb-3 flex items-center justify-between px-1">
+              <h3 className="lane-title">
                 {STAGE_LABELS[stage]}
               </h3>
-              <span className="text-xs text-slate-400">{byStage[stage].length}</span>
+              <span className="count-pill">{byStage[stage].length}</span>
             </div>
             <div className="space-y-2">
-              {byStage[stage].map((i) => (
+              {byStage[stage].length === 0 ? (
+                <div className="lane-empty">No inquiries in this stage</div>
+              ) : byStage[stage].map((i) => (
                 <div
                   key={i.id}
-                  className="rounded-lg border border-slate-200 bg-white p-2.5 shadow-sm"
+                  className="inquiry-card"
+                  aria-busy={busyId === i.id}
                 >
                   <Link
                     href={`/inquiries/${i.id}`}
-                    className="font-medium text-slate-800 hover:text-indigo-700"
+                    className="font-semibold text-slate-900 hover:text-emerald-800"
                   >
                     {i.name}
                   </Link>
@@ -122,9 +151,13 @@ export function KanbanBoard({
                           type="button"
                           disabled={busyId === i.id}
                           onClick={() => move(i.id, s)}
-                          className="rounded bg-slate-50 px-1.5 py-0.5 text-[10px] text-slate-600 hover:bg-indigo-50 hover:text-indigo-700"
+                          aria-label={`Move ${i.name} to ${STAGE_LABELS[s]}`}
+                          aria-busy={busyId === i.id && busyStage === s}
+                          className="stage-action"
                         >
-                          → {STAGE_LABELS[s]}
+                          {busyId === i.id && busyStage === s
+                            ? "Moving…"
+                            : `→ ${STAGE_LABELS[s]}`}
                         </button>
                       ))}
                   </div>
